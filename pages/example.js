@@ -1,7 +1,14 @@
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import { Flex, Text, Image } from '@chakra-ui/react';
 import { useState } from 'react';
-import Example from '../components/Example';
+
+const Example = dynamic(
+  () => import('../components/Example'),
+  { ssr: false }
+)
+
+
 
 export default function Home() {
   return (
