@@ -77,7 +77,7 @@ export default function PceConstructor({ id, description, imageURL }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isOver, setIsOver] = useState(false);
   const [dragURL, setDragURL] = useState("");
-  const [Description, setDescription] = useState("")
+  const [Description, setDescription] = useState("");
   const [enableArrange, setEnableArrange] = useState(false);
 
   const filteredPceLibrary = defaultPceLibrary.filter((item) =>
@@ -140,7 +140,7 @@ export default function PceConstructor({ id, description, imageURL }) {
     const handleDragStartDescription = (e) => {
       setIsDragging(true);
       e.dataTransfer.setData("text/plain", description);
-      setDescription(description)
+      setDescription(description);
       console.log(description);
     };
 
@@ -158,7 +158,7 @@ export default function PceConstructor({ id, description, imageURL }) {
           <Flex
             mt={1}
             w="40%"
-            onDragOver={handleDragStartImage}
+            onDragStart={handleDragStartImage}
             cursor="pointer"
           >
             <Image boxSize="90px" objectFit="contain" src={imageURL} />
@@ -167,7 +167,7 @@ export default function PceConstructor({ id, description, imageURL }) {
           <Flex
             mt={1}
             w="40%"
-            onDragOver={handleDragStartImage}
+            onDragStart={handleDragStartImage}
             cursor="pointer"
           >
             <Image boxSize="90px" objectFit="contain" src="/no-image.svg" />
@@ -245,19 +245,22 @@ export default function PceConstructor({ id, description, imageURL }) {
     };
 
     const handleDragOverImage = (e, index) => {
-      e.stopPropagation();
-      setValue(`pceItems.${index}.imageURL`, dragURL);
-      setIsDragging(false)
-      setDragURL(null)
+      e.preventDefault();
+      if (dragURL) {
+        setValue(`pceItems.${index}.imageURL`, dragURL);
+        setIsDragging(false);
+        setDragURL(null);
+      }
     };
+
     const handleDragOverDescription = (e, index) => {
       e.preventDefault();
-      if(Description){
+      if (Description) {
         setValue(`pceItems.${index}.description`, Description);
-        setIsDragging(false)
-        setDescription(null)
+        setIsDragging(false);
+        setDescription(null);
       }
-    }
+    };
 
     const [statics, setStatics] = useState({
       minID: "",
@@ -268,7 +271,6 @@ export default function PceConstructor({ id, description, imageURL }) {
     const formRef = useRef();
 
     const fields = getValues("pceItems");
-
 
     useEffect(() => {
       setStatics({
@@ -286,7 +288,7 @@ export default function PceConstructor({ id, description, imageURL }) {
     }, [JSON.stringify(fields)]);
 
     const handleRowDrop = (e, index) => {
-      if(!isDragging){
+      if (!isDragging) {
         e.dataTransfer.dropEffect = "linkMove";
         move(activeItem, index);
         setActiveItem(null);
@@ -295,11 +297,11 @@ export default function PceConstructor({ id, description, imageURL }) {
     };
 
     const handleRowDrag = (e, index) => {
-      if(!isDragging){
+      e.preventDefault();
+      e.currentTarget.style.border = "none";
+      if (!isDragging) {
         e.target.style.color = "blue";
-        e.preventDefault();
         // checking NaN because 0 is false and index can be false
-        e.currentTarget.style.border = "none";
         if (isNaN(parseInt(activeItem))) setActiveItem(index);
       }
     };
@@ -461,7 +463,14 @@ export default function PceConstructor({ id, description, imageURL }) {
           // overflow-y-auto - removed this
           className=" scrollbar-hide"
         >
-          <Container maxW="2xl" mt={6} minH="600px" px={4} id="form_to_export" ref={formRef}>
+          <Container
+            maxW="2xl"
+            mt={6}
+            minH="600px"
+            px={4}
+            id="form_to_export"
+            ref={formRef}
+          >
             {/* constructor form start */}
 
             <form>
@@ -568,10 +577,7 @@ export default function PceConstructor({ id, description, imageURL }) {
                         <Center w="42px" borderRightWidth="1px">
                           <Text fontSize="xs">{index + 1}</Text>
                         </Center>
-                        <Center
-                          minW="100px"
-                          borderRightWidth="1px"
-                        >
+                        <Center minW="100px" borderRightWidth="1px">
                           {!!field.imageURL ? (
                             <div style={{ zIndex: fields.length - index }}>
                               <Draggable
@@ -595,20 +601,27 @@ export default function PceConstructor({ id, description, imageURL }) {
                                   />
                                 </div>
                               </Draggable>
-                              </div>
+                            </div>
                           ) : (
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
+                            <Center
                               onDrop={
                                 enableArrange
                                   ? () => {}
                                   : (e) => handleDragOverImage(e, index)
                               }
-                              {...register(`pceItems.${index}.imageURL`)}
                             >
-                              Drop here
-                            </Text>
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                                align="center"
+                                width="100%"
+                                height="100%"
+                                verticalAlign="center"
+                                {...register(`pceItems.${index}.imageURL`)}
+                              >
+                                Drop here
+                              </Text>
+                            </Center>
                           )}
                         </Center>
 
