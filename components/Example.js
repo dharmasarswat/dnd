@@ -77,6 +77,7 @@ export default function PceConstructor({ id, description, imageURL }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isOver, setIsOver] = useState(false);
   const [dragURL, setDragURL] = useState("");
+  const [Description, setDescription] = useState("")
   const [enableArrange, setEnableArrange] = useState(false);
 
   const filteredPceLibrary = defaultPceLibrary.filter((item) =>
@@ -139,6 +140,7 @@ export default function PceConstructor({ id, description, imageURL }) {
     const handleDragStartDescription = (e) => {
       setIsDragging(true);
       e.dataTransfer.setData("text/plain", description);
+      setDescription(description)
       console.log(description);
     };
 
@@ -248,6 +250,14 @@ export default function PceConstructor({ id, description, imageURL }) {
       setIsDragging(false)
       setDragURL(null)
     };
+    const handleDragOverDescription = (e, index) => {
+      e.preventDefault();
+      if(Description){
+        setValue(`pceItems.${index}.description`, Description);
+        setIsDragging(false)
+        setDescription(null)
+      }
+    }
 
     const [statics, setStatics] = useState({
       minID: "",
@@ -276,18 +286,22 @@ export default function PceConstructor({ id, description, imageURL }) {
     }, [JSON.stringify(fields)]);
 
     const handleRowDrop = (e, index) => {
-      e.dataTransfer.dropEffect = "linkMove";
-      move(activeItem, index);
-      setActiveItem(null);
-      e.currentTarget.style.border = "none";
+      if(!isDragging){
+        e.dataTransfer.dropEffect = "linkMove";
+        move(activeItem, index);
+        setActiveItem(null);
+        e.currentTarget.style.border = "none";
+      }
     };
 
     const handleRowDrag = (e, index) => {
-      e.target.style.color = "blue";
-      e.preventDefault();
-      // checking NaN because 0 is false and index can be false
-      e.currentTarget.style.border = "none";
-      if (isNaN(parseInt(activeItem))) setActiveItem(index);
+      if(!isDragging){
+        e.target.style.color = "blue";
+        e.preventDefault();
+        // checking NaN because 0 is false and index can be false
+        e.currentTarget.style.border = "none";
+        if (isNaN(parseInt(activeItem))) setActiveItem(index);
+      }
     };
 
     const nodeRef = useRef();
@@ -557,11 +571,6 @@ export default function PceConstructor({ id, description, imageURL }) {
                         <Center
                           minW="100px"
                           borderRightWidth="1px"
-                          onDrop={
-                            enableArrange
-                              ? () => {}
-                              : (e) => handleDragOverImage(e, index)
-                          }
                         >
                           {!!field.imageURL ? (
                             <div style={{ zIndex: fields.length - index }}>
@@ -591,6 +600,11 @@ export default function PceConstructor({ id, description, imageURL }) {
                             <Text
                               fontSize="xs"
                               color="gray.500"
+                              onDrop={
+                                enableArrange
+                                  ? () => {}
+                                  : (e) => handleDragOverImage(e, index)
+                              }
                               {...register(`pceItems.${index}.imageURL`)}
                             >
                               Drop here
@@ -601,6 +615,11 @@ export default function PceConstructor({ id, description, imageURL }) {
                         <Center w="100px" borderRightWidth="1px">
                           <textarea
                             className="resize-none bg-transparent p-1 text-xs min-h-full overflow-y-auto scrollbar-hide focus:outline-none text-center"
+                            onDrop={
+                              enableArrange
+                                ? () => {}
+                                : (e) => handleDragOverDescription(e, index)
+                            }
                             {...register(`pceItems.${index}.description`)}
                           />
                         </Center>
