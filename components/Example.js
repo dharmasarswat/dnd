@@ -77,7 +77,6 @@ export default function PceConstructor({ id, description, imageURL }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isOver, setIsOver] = useState(false);
   const [dragURL, setDragURL] = useState("");
-  const [dropURL, setDropURL] = useState("");
   const [enableArrange, setEnableArrange] = useState(false);
 
   const filteredPceLibrary = defaultPceLibrary.filter((item) =>
@@ -246,7 +245,8 @@ export default function PceConstructor({ id, description, imageURL }) {
     const handleDragOverImage = (e, index) => {
       e.stopPropagation();
       setValue(`pceItems.${index}.imageURL`, dragURL);
-      setDropURL(dragURL);
+      setIsDragging(false)
+      setDragURL(null)
     };
 
     const [statics, setStatics] = useState({
